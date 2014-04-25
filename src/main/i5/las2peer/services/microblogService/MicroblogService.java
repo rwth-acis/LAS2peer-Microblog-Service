@@ -76,7 +76,7 @@ public class MicroblogService extends Service
         }
         catch(ArtefactStorageException e)
         {
-            e.printStackTrace();
+
             result= new HttpResponse("Error retrieving blog: "+e.getMessage(),404);
         }
         return result;
@@ -111,10 +111,10 @@ public class MicroblogService extends Service
             }
             catch(ArtefactStorageException e1)
             {
-                e1.printStackTrace();
+
                 result= new HttpResponse("Blog could not be created",400);
             }
-           
+
 
         }
         return result;
