@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public interface Artefact extends Serializable
 {
-    public String getOwner();
+    public String getOwnerId();
     public String getId();
     public Object getContent();
     public long getCreationTime();

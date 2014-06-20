@@ -1,2 +1,1 @@
 agent-UserA.xml;userAPass
-agent-BlogService.xml;SampleServicePass

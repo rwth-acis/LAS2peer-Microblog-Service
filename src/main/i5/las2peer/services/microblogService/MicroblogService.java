@@ -1,25 +1,33 @@
 package i5.las2peer.services.microblogService;
 
 import i5.las2peer.api.Service;
-import i5.las2peer.p2p.AgentAlreadyRegisteredException;
 import i5.las2peer.p2p.AgentNotKnownException;
-import i5.las2peer.persistency.Envelope;
+import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.*;
 
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.security.Agent;
-import i5.las2peer.security.AgentException;
-import i5.las2peer.security.L2pSecurityException;
 import i5.las2peer.security.UserAgent;
+import i5.las2peer.services.microblogService.data.XMLResult;
 import i5.las2peer.services.microblogService.exceptions.ArtefactStorageException;
+
+import java.util.ArrayList;
 
 /**
  * @author Alexander
  */
 @Path("microblog")
+@Produces(MediaType.TEXT_XML)
 public class MicroblogService extends Service
 {
+
+    public static final String TRUE=String.valueOf(true);
+    public static final String FALSE=String.valueOf(false);
+    public static final int HTTP_OK=200;
+    public static final int HTTP_CREATED=201;
+    public static final int HTTP_NOT_FOUND=404;
+    public static final int HTTP_ERROR=500;
 
     public String getRESTMapping()
     {
@@ -37,177 +45,228 @@ public class MicroblogService extends Service
 
 
     @GET
-    public String loginCheck()
+    public String isRunning()
     {
-        return "OK";
+        XMLResult xmlResult= new XMLResult();
+        xmlResult.appendElement("isRunning",TRUE);
+        return xmlResult.toString();
     }
 
-    @Path("{blog}")
-    @GET
-    public HttpResponse getBlog(@PathParam("blog") String blogName)
-    {
-
-        ArtefactStorage storage = getStorage();
-        HttpResponse result;
-        try
-        {
-
-            Microblog blog= (Microblog) storage.load(Microblog.class,blogName);
-
-            StringBuilder output= new StringBuilder();
-            output.append(blog.getName()).append("\n");
-            for(int i = 0; i < blog.getChildren().size(); i++)
-            {
-
-                try
-                {
-                    BlogEntry entry= (BlogEntry) storage.load(BlogEntry.class,blog.getChildren().get(i));
-                    output.append(entry.getOwner()).append(" wrote:\n").append(
-                            BlogEntry.getDate(entry.getCreationTime())).append("\n").append(entry.getContent()).append("\n");
-                }
-                catch(ArtefactStorageException e)
-                {
-                    output.append("Could not load blog entry: ").append(blog.getChildren().get(i)).append("\n");
-
-                }
-
-            }
-            result= new HttpResponse(output.toString(),200);
-        }
-        catch(ArtefactStorageException e)
-        {
-
-            result= new HttpResponse("Error retrieving blog: "+e.getMessage(),404);
-        }
-        return result;
-    }
-
+    /**
+     * Creates a new blog
+     * @param blogName Name of the blog to create
+     * @return if blog already exists, a 200, else 201
+     */
     @Path("{blog}")
     @PUT
-    public HttpResponse createBlog(@PathParam("blog") String blogName)
+    public HttpResponse createBlog(@PathParam("blog") String blogName, @QueryParam(name="name",defaultValue = "") String name, @QueryParam(name="description",defaultValue = "") String description)
     {
 
 
 
-        ArtefactStorage storage = getStorage();
+        ArtifactStorage storage = getStorage();
         HttpResponse result;
-        try
+        try //first try to load blog
         {
             Microblog blog= (Microblog) storage.load(Microblog.class,blogName);
-            result= new HttpResponse("Blog already existing",200);
+            result= new HttpResponse(getIdXML(blog),HTTP_OK); //already existing, so do nothing
         }
         catch(ArtefactStorageException e)
         {
             try
             {
-                String agentName=getAgentName();
-                Microblog blog = new Microblog(blogName,agentName,"","");
+
+                if(name.trim().length()==0)
+                    name=blogName;
+
+                String agentId=getAgentId();
+                Microblog blog = new Microblog(blogName,agentId,name,description,"");
                 storage.save(blog);
+                result= new HttpResponse(getIdXML(blog),HTTP_CREATED);
 
-
-
-
-                result= new HttpResponse("Blog created: "+blog.getId()+" by "+agentName,200);
             }
             catch(ArtefactStorageException e1)
             {
-
-                result= new HttpResponse("Blog could not be created",400);
+                result= new HttpResponse(getErrorXML("Storage error: " + e1.getMessage()),HTTP_ERROR);
             }
-
-
         }
         return result;
     }
 
+    /**
+     * Post a new entry to a blog
+     * @param blogName
+     * @param blogEntry
+     * @return
+     */
     @Path("{blog}")
     @POST
     public HttpResponse createBlogEntry(@PathParam("blog") String blogName, @ContentParam String blogEntry)
     {
+        BlogEntry entry= new BlogEntry(getAgentId(), getAgentName(), blogEntry);
+        return createResource(entry,Microblog.class,blogName);
 
-        ArtefactStorage storage = getStorage();
-        HttpResponse result;
+    }
+
+    /**
+     * Creates a comment for an entry
+     * @param entryId
+     * @param content
+     * @return
+     */
+    @Path("comments/{entryId}")
+    @POST
+    public HttpResponse createBlogComment(@PathParam("entryId") String entryId, @ContentParam String content)
+    {
+        BlogComment comment = new BlogComment(getAgentId(), getAgentName(),content);
+        return createResource(comment,BlogEntry.class,entryId);
+    }
+    public HttpResponse createResource(StaticArtifact resource, Class<?> clsParent, String parentId)
+    {
+        ArtifactStorage storage = getStorage();
+        HttpResponse result=null;
+        StaticArtifact parent=null;
         try
         {
-            Microblog blog= (Microblog) storage.load(Microblog.class,blogName);
+            try
+            {
+                parent=  storage.load(clsParent, parentId);
+            }
+            catch(ArtefactStorageException e)
+            {
+                result= new HttpResponse(getErrorXML("Parent \""+parentId+"\" not found! "+e.getMessage()),HTTP_NOT_FOUND);
+            }
 
-            String agentName=getAgentName();
-            BlogEntry entry= new BlogEntry(agentName,blogEntry);
-            storage.save(entry);
-
-            blog.addChild(entry.getId());
-            storage.save(blog);
-            result= new HttpResponse("Blog entry created",200);
+            if(parent!=null)
+            {
+                storage.save(resource);
+                parent.addChild(resource.getId());
+                storage.save(parent);
+                result= new HttpResponse(getIdXML(resource),HTTP_CREATED);
+            }
         }
         catch(ArtefactStorageException e1)
         {
-            result= new HttpResponse("Blog entry could not be created",400);
+            result= new HttpResponse(getErrorXML("Resource could not be created! " +e1.getMessage()),HTTP_ERROR);
         }
         return result;
-
     }
+
+    @SuppressWarnings("unchecked")
+    public HttpResponse getResource(Class<?> clsParent, Class<?> clsChildren, String resourceId)
+    {
+        ArtifactStorage storage = getStorage();
+        HttpResponse result=null;
+        XMLResult xmlResult = new XMLResult();
+        StaticArtifact resource=null;
+        try
+        {
+            resource=  storage.load(clsParent,resourceId);
+        }
+        catch(ArtefactStorageException e)
+        {
+            result= new HttpResponse(getErrorXML("Resource \""+resourceId+"\" not found! "+e.getMessage()),HTTP_NOT_FOUND);
+        }
+
+        if(resource!=null)
+        {
+            xmlResult.appendElement("resource",resource.getProperties(),resource.getContent().toString());
+
+            for(int i = 0; i < resource.getChildren().size(); i++)
+            {
+                try
+                {
+                    StaticArtifact child=  storage.load(clsChildren, ((ArrayList<String>) resource.getChildren()).get(i));
+                    xmlResult.appendElement("child",child.getProperties(),"");
+                }
+                catch(ArtefactStorageException e1)
+                {
+                    //ignore unreadable entries
+                }
+            }
+            result= new HttpResponse(xmlResult.toString(),HTTP_OK);
+        }
+        return result;
+    }
+
+    /**
+     * Retrieves blog object with list of entries
+     * @param blogName
+     * @return
+     */
+    @Path("{blog}")
+    @GET
+    public HttpResponse getBlog(@PathParam("blog") String blogName)
+    {
+        return getResource(Microblog.class,BlogEntry.class,blogName);
+    }
+
+    /**
+     * Retrieves entry with the given id
+     * @param entryId
+     * @return
+     */
+    @Path("entries/{entryId}")
+    @GET
+    public HttpResponse getBlogEntry(@PathParam("entryId") String entryId)
+    {
+        return getResource(BlogEntry.class,BlogComment.class,entryId);
+    }
+
+    /**
+     * Retrieves a comment with the given id
+     * @param commentId
+     * @return
+     */
+    @Path("comments/{commentId}")
+    @GET
+    public HttpResponse getComment(@PathParam("commentId") String commentId)
+    {
+        return getResource(BlogComment.class, BlogComment.class, commentId);
+    }
+
+
+
+
 
     private String getAgentName()
     {
         Agent agent=this.getContext().getMainAgent();
         return ((UserAgent)(agent)).getLoginName();
     }
-
-    private ArtefactStorage getStorage()
+    private String getAgentName(String id) throws AgentNotKnownException
     {
-        ArtefactStorage storage=null;
+        Long lid=Long.parseLong(id);
+        Agent agent=this.getContext().getAgent(lid);
+        return ((UserAgent)(agent)).getLoginName();
+    }
+    private String getAgentId()
+    {
+        return String.valueOf(this.getContext().getMainAgent().getId());
+    }
+    private ArtifactStorage getStorage()
+    {
+        ArtifactStorage storage=null;
 
         Agent agent=this.getContext().getMainAgent();
-        storage = new DHTArtefactStorage(agent);
+        storage = new DHTArtifactStorage(agent);
 
 
         return storage;
     }
-
-   /*@Path("save")
-    @GET
-    public boolean save()
+    private String getErrorXML(String error)
     {
-        Envelope env;
-        Agent agent=this.getContext().getMainAgent();
-        try
-        {
-            Microblog be= new Microblog("blog1","hans","asd","wurst");
-            env=Envelope.createClassIdEnvelope(be, be.getOwner(), agent);
-            env.open();
-            env.setOverWriteBlindly(true);
-            env.updateContent(be);
-            env.store();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return true;
-
+        XMLResult xmlResult= new XMLResult();
+        xmlResult.appendElement("error",error);
+        return xmlResult.toString();
+    }
+    private String getIdXML(StaticArtifact artifact)
+    {
+        XMLResult xmlResult= new XMLResult();
+        xmlResult.appendElement("id",artifact.getId());
+        return xmlResult.toString();
     }
 
-    @Path("load")
-    @GET
-    public String load()
-    {
-        Agent agent=this.getContext().getMainAgent();
-        String result="";
-        Envelope env;
-        try
-        {
-            env=Envelope.fetchClassIdEnvelope(Microblog.class, "hans");
-            env.open();
-            Microblog be = env.getContent(Microblog.class);
-            env.close();
-            result=be.getContent();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
 
 
-        return result;
-    }*/
 }

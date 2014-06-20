@@ -2,8 +2,10 @@ package i5.las2peer.services.microblogService;
 
 
 
+import i5.las2peer.services.microblogService.data.ShortId;
+import i5.las2peer.services.microblogService.data.StringPair;
 import i5.las2peer.services.microblogService.interfaces.Artefact;
-import rice.p2p.util.Base64;
+
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -17,9 +19,10 @@ import java.util.Date;
 /**
  * @author Alexander
  */
-public abstract class StaticArtefact<T extends Serializable> implements Artefact
+public abstract class StaticArtifact<T extends Serializable> implements Artefact
 {
     private static final long serialVersionUID = 538390869975844431L;
+    private String ownerId;
     private String owner;
     private String id;
     private T content;
@@ -27,9 +30,9 @@ public abstract class StaticArtefact<T extends Serializable> implements Artefact
     private ArrayList<String> children=new ArrayList<String>();
 
     @Override
-    public String getOwner()
+    public String getOwnerId()
     {
-        return owner;
+        return ownerId;
     }
 
     @Override
@@ -49,6 +52,12 @@ public abstract class StaticArtefact<T extends Serializable> implements Artefact
     {
         return creationTime;
     }
+
+    public String getOwner()
+    {
+        return owner;
+    }
+
     public Class<?> getContentClass()
     {
         return content.getClass();
@@ -75,22 +84,28 @@ public abstract class StaticArtefact<T extends Serializable> implements Artefact
         children.remove(id);
     }
 
-    public StaticArtefact(String owner, T content)
+    public StaticArtifact(String ownerId, String owner, T content)
     {
+        this.ownerId=ownerId;
         this.owner=owner;
         generateId();
         setContent(content);
         creationTime=System.currentTimeMillis();
-
+    }
+    public StaticArtifact(String ownerId, T content)
+    {
+        this(ownerId,ownerId,content);
     }
 
     private void generateId()
     {
         SecureRandom prng = new SecureRandom();
         Long randomNum = prng.nextLong();
-        byte[] bytes = ByteBuffer.allocate(8).putLong(randomNum).array();
-        id=Base64.encodeBytes(bytes);
+
+        id= ShortId.getIdString(randomNum);
     }
+
+    public abstract StringPair[] getProperties();
 
     public void setContent(T content)
     {

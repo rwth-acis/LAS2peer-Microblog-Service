@@ -19,19 +19,19 @@ import i5.las2peer.tools.SerializationException;
 /**
  * @author Alexander
  */
-public class DHTArtefactStorage extends ArtefactStorage
+public class DHTArtifactStorage extends ArtifactStorage
 {
     private ServiceAgent service;
     private Agent agent;
     private static final String ENVELOPE_PREFIX="DHTSTORAGE";
     @Override
-    public void save(StaticArtefact artefact) throws ArtefactStorageException
+    public void save(StaticArtifact artefact) throws ArtefactStorageException
     {
         setEnvelopeData(artefact);
     }
 
     @Override
-    public StaticArtefact load(Class<?> cls,String id) throws ArtefactStorageException
+    public StaticArtifact load(Class<?> cls,String id) throws ArtefactStorageException
     {
         return getEnvelopeData(cls,id);
     }
@@ -40,11 +40,11 @@ public class DHTArtefactStorage extends ArtefactStorage
     @SuppressWarnings("rawtypes")
     public void delete(Class<?> cls, String id) throws ArtefactStorageException
     {
-        StaticArtefact artefact=getEnvelopeData(cls,id);
+        StaticArtifact artefact=getEnvelopeData(cls,id);
         artefact.deleteContent();
     }
 
-    public DHTArtefactStorage(Agent agent)
+    public DHTArtifactStorage(Agent agent)
     {
         this.agent=agent;
 
@@ -52,7 +52,7 @@ public class DHTArtefactStorage extends ArtefactStorage
 
 
 
-    private Envelope createNewEnvelope(StaticArtefact artefact) throws ArtefactStorageException
+    private Envelope createNewEnvelope(StaticArtifact artefact) throws ArtefactStorageException
     {
         try
         {
@@ -69,7 +69,7 @@ public class DHTArtefactStorage extends ArtefactStorage
     }
 
 
-    private void setEnvelopeData(StaticArtefact artefact) throws ArtefactStorageException
+    private void setEnvelopeData(StaticArtifact artefact) throws ArtefactStorageException
     {
         Envelope env;
         try
@@ -140,17 +140,17 @@ public class DHTArtefactStorage extends ArtefactStorage
 
     }
 
-    private StaticArtefact getEnvelopeData(Class<?> cls,String id) throws ArtefactStorageException
+    private StaticArtifact getEnvelopeData(Class<?> cls,String id) throws ArtefactStorageException
     {
         Envelope env=fetchEnvelope(cls,id);
-        StaticArtefact data=null;
+        StaticArtifact data=null;
         if(env==null)
             throw new ArtefactStorageException("Envelope could not be found, nor created!");
         try
         {
 
             env.open();
-            data = env.getContent(StaticArtefact.class);
+            data = env.getContent(StaticArtifact.class);
             env.close();
 
         }
