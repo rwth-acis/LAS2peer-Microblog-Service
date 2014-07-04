@@ -1,22 +1,25 @@
-package i5.las2peer.services.microblogService;
+package i5.las2peer.services.microblogService.data;
 
-import i5.las2peer.services.microblogService.data.StringPair;
-import i5.las2peer.services.microblogService.interfaces.Medium;
+import i5.las2peer.services.microblogService.exceptions.StorageException;
+import i5.las2peer.services.microblogService.interfaces.IMedium;
 
 /**
- * @author Alexander
+ * Microblog manages blogentries and metadata about the microblog
  */
-public class Microblog extends StaticArtifact<String> implements Medium
+public class Microblog extends StaticArtifact<String, TextData, BlogEntry> implements IMedium
 {
     private static final long serialVersionUID = 5174121002402191223L;
     String name;
     String description;
     String id;
 
-    public Microblog(String id, String owner, String name, String description, String content)
+
+    public Microblog(String id, String ownerId, String owner, String name, String description)
+            throws StorageException
     {
-        super(owner, content);
+        super(TextData.class, BlogEntry.class, ownerId, owner);
         this.name=name;
+
         this.id=id;
         this.description=description;
 
@@ -43,7 +46,7 @@ public class Microblog extends StaticArtifact<String> implements Medium
     }
 
     @Override
-    public String getContent()
+    public String readContent()
     {
         return getDescription();
     }

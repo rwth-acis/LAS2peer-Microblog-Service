@@ -16,7 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
 /**
- * @author Alexander
+ * Class to create simple XML response objects. Depth is limited to 1.
  */
 public class XMLResult
 {
@@ -41,6 +41,12 @@ public class XMLResult
         }
     }
 
+    /**
+     * Append an new element
+     * @param tag the XML-tag
+     * @param attributes optional attributes (key, value pairs)
+     * @param content optional content
+     */
     public void appendElement(String tag, StringPair[] attributes, String content)
     {
         Element elem = doc.createElement(tag);
@@ -55,10 +61,20 @@ public class XMLResult
 
     }
 
+    /**
+     * Appends an element without attributes
+     * @param tag the XML-tag
+     * @param content optional content
+     */
     public void appendElement(String tag, String content)
     {
         appendElement(tag, new StringPair[] {}, content);
     }
+
+    /**
+     * Formats the XML for output
+     * @return XML string representation
+     */
     public String toString()
     {
         if(doc!=null)

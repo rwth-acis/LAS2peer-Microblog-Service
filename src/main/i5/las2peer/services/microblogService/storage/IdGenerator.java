@@ -1,17 +1,32 @@
-package i5.las2peer.services.microblogService.data;
+package i5.las2peer.services.microblogService.storage;
 
-/**
- * @author Alexander
- */
+
 
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 
 /**
- * Lazy Base64 for 8 bit long
+ * Generates a random ID using SecureRandom. IDs are NOT Base64, but use same principle for shorter string-length
  */
-public class ShortId
+public class IdGenerator
 {
+    /**
+     *
+     * @return a random string from a 64 bit number
+     */
+    public static String generateId()
+    {
+        SecureRandom prng = new SecureRandom();
+        Long randomNum = prng.nextLong();
+        return getIdString(randomNum);
+    }
     private static String chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk=mnopqrstuvwxyz0123456789+l";
+
+    /**
+     * Converts a long to a short string
+     * @param id number to convert
+     * @return Base64 like string representation
+     */
     public static String getIdString(long id)
     {
 

@@ -1,7 +1,8 @@
 package i5.las2peer.services.microblogService.data;
 
+
 /**
- * @author Alexander
+ * Simple class to store two strings
  */
 public class StringPair
 {
