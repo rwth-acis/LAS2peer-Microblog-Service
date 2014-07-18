@@ -60,7 +60,8 @@ public class Microblog extends StaticArtifact<String, TextData, BlogEntry> imple
                 new StringPair("owner",this.getOwner()),
                 new StringPair("time",String.valueOf(StaticArtifact.getDate(this.getCreationTime()))),
                 new StringPair("name",this.getName()),
-                new StringPair("description",this.getDescription())
+                new StringPair("description",this.getDescription()),
+                new StringPair("timestamp",String.valueOf(this.getCreationTime()))
         };
         return attributes;
     }

@@ -41,7 +41,8 @@ public class BlogEntry extends StaticArtifact<String, TextData, BlogComment>
                 new StringPair("id",this.getId()),
                 new StringPair("ownerId",this.getOwnerId()),
                 new StringPair("owner",this.getOwner()),
-                new StringPair("time",String.valueOf(StaticArtifact.getDate(this.getCreationTime())))
+                new StringPair("time",String.valueOf(StaticArtifact.getDate(this.getCreationTime()))),
+                new StringPair("timestamp",String.valueOf(this.getCreationTime()))
         };
         return attributes;
     }

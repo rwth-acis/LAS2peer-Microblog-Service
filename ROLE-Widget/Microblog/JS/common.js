@@ -1,5 +1,8 @@
 ﻿var baseURI = "http://localhost:8080/microblog";
-
+var constants = {
+    "MICROBLOG_SELECTED": "MICROBLOG_SELECTED",
+    "MICROBLOG_ENTRY_SELECTED": "MICROBLOG_ENTRY_SELECTED"
+};
 
 
 function getBaseURI() {

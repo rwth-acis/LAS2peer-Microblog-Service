@@ -7,13 +7,14 @@
     font-size:larger;
     color: #303030;
     min-height:350px;
+   overflow-y:auto!important;
 }
-body {
+html {
     
     height: 100%;
-    margin:0px;
-    padding:0px;
-   
+    margin:0;
+    padding:0;
+   overflow-y:auto!important;
     
 }
 
@@ -30,6 +31,9 @@ body {
 #content {
 }
 
+.title{
+    display: inline-block;
+}
 .selectItem {
     height:30px;
     line-height:30px;
@@ -37,6 +41,12 @@ body {
     padding: 0px 10px;
     font-size:20px;
     font-weight:600;
+    /* flexbox setup */
+      display: -webkit-flex;
+      -webkit-flex-direction: row;
+
+      display: flex;
+      flex-direction: row;
 }
 
 .selectItem:hover {
@@ -74,4 +84,45 @@ body {
      position:absolute;
      right:10px;
      line-height:20px;
+}
+
+.addEntry {
+    
+    font-size:45px;
+    float:right;
+    margin-right: 12px;
+    height:50px;
+}
+
+.addEntry:hover {
+    color:#ccc;
+}
+
+.addEntry:active {
+   
+    color:#aaa;
+}
+
+#content input[type=text], textarea{
+    
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+   
+}
+
+#content span{
+    margin-left:5px;
+
+}
+
+.multilineText{
+    height:150px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+
+
+.multilineText:active {
+    background-color:#e2e2e2;
 }
