@@ -2,19 +2,24 @@
     height:100%;
     width:100%;
     
+    min-width: 250px;
     font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
     font-weight:500;
     font-size:larger;
     color: #303030;
     min-height:350px;
-   overflow-y:auto!important;
+    overflow-y:auto!important;
+    overflow-x:auto!important;
 }
 html {
     
+    min-height: 200px;
+    min-width: 250px;
     height: 100%;
     margin:0;
     padding:0;
-   overflow-y:auto!important;
+    overflow-y:auto!important;
+    overflow-x:auto!important;
     
 }
 
