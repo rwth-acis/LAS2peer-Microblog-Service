@@ -31,17 +31,17 @@
   isEnteringInput = false;
 
   $(document).ready(function() {
-    return initMicroblogSelector();
+    initMicroblogSelector();
   });
 
   initMicroblogSelector = function() {
     initEvents();
-    return fetchEntries();
+    fetchEntries();
   };
 
   initEvents = function() {
-    return $("#addEntry").click(function() {
-      return addBlogInput();
+    $("#addEntry").click(function() {
+      addBlogInput();
     });
   };
 
@@ -71,7 +71,7 @@
       }
     });
     isEnteringInput = true;
-    return $("#enterBlogName").focus();
+    $("#enterBlogName").focus();
   };
 
 
@@ -87,8 +87,8 @@
     $("#textfieldBox").remove();
     id = microblogLib.Encoder.formatAsId(name);
     if (id.length > 0) {
-      return requestSender.sendRequest("put", "blogs/" + id + "?name=" + name, "", function() {
-        return fetchEntries();
+      requestSender.sendRequest("put", "blogs/" + id + "?name=" + name, "", function() {
+        fetchEntries();
       });
     }
   };
@@ -100,11 +100,11 @@
 
   fetchEntries = function() {
     $("#content").html("");
-    return requestSender.sendRequest("get", "blogs", "", function(data) {
+    requestSender.sendRequest("get", "blogs", "", function(data) {
       var $xml, xml;
       xml = $.parseXML(data);
       $xml = $(xml);
-      return $xml.find("child").each(function(index) {
+      $xml.find("child").each(function(index) {
         var div;
         div = document.createElement("div");
         div.className = "selectItem";
@@ -117,13 +117,13 @@
          */
         $(div).click(function(event) {
           if (typeof gadgets !== "undefined" && gadgets !== null) {
-            return iwcManager.sendIntent("MICROBLOG_SELECTED", event.target.id);
+            iwcManager.sendIntent("MICROBLOG_SELECTED", event.target.id);
           }
         });
-        return $("#content").append(div);
+        $("#content").append(div);
       });
     }, function(error) {
-      return alert(error);
+      alert(error);
     });
   };
 

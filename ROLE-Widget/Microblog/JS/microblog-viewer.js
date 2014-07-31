@@ -36,16 +36,16 @@
   currentBlog = "";
 
   $(document).ready(function() {
-    return initMicroblogViewer();
+    initMicroblogViewer();
   });
 
   initMicroblogViewer = function() {
-    return initEvents();
+    initEvents();
   };
 
   initEvents = function() {
     return $("#addEntry").click(function() {
-      return addEntryInput();
+      addEntryInput();
     });
   };
 
@@ -60,10 +60,10 @@
     }
     microblogLib.ElementGenerator.generateMultilineTextfield($("#content"));
     $("#sendEntryButton").click(function(e) {
-      return addEntry();
+      addEntry();
     });
     isEnteringInput = true;
-    return $("#enterBlogEntry").focus();
+    $("#enterBlogEntry").focus();
   };
 
 
@@ -77,8 +77,8 @@
     isEnteringInput = false;
     $("#textfieldBox").remove();
     if (entry.length > 0) {
-      return requestSender.sendRequest("post", "blogs/" + currentBlog, entry, function(data) {
-        return fetchEntries(currentBlog);
+      requestSender.sendRequest("post", "blogs/" + currentBlog, entry, function(data) {
+        fetchEntries(currentBlog);
       });
     }
   };
@@ -91,36 +91,31 @@
   fetchEntries = function(blog) {
     currentBlog = blog;
     $("#content").html("");
-    return requestSender.sendRequest("get", "blogs/" + blog, "", function(data) {
-      var $xml, $xmlInner, requests, xml, xmlCallback;
+    requestSender.sendRequest("get", "blogs/" + blog, "", function(data) {
+      var $xml, $xmlInner, requests, xml;
       xml = $.parseXML(data);
       $xml = $(xml);
       $("#header .title").text($xml.find("resource").attr("name"));
       requests = [];
       $xmlInner = [];
-      xmlCallback = function(childData) {
-        var xmlInner;
-        xmlInner = $.parseXML(childData);
-        return $xmlInner[0] = $(xmlInner).find("resource");
-      };
 
       /*
         For each child (i.e.) entry get the respective ressource.
         Create a bunch of requests and use a global variable to store the results.
        */
       $xml.find("child").each(function(index) {
-        return requests[index] = new api.Request("get", "entries/" + $(this).attr("id"), "", function(childData) {
+        requests[index] = new api.Request("get", "entries/" + $(this).attr("id"), "", function(childData) {
           var xmlInner;
           xmlInner = $.parseXML(childData);
-          return $xmlInner[index] = $(xmlInner).find("resource");
+          $xmlInner[index] = $(xmlInner).find("resource");
         });
       });
 
       /*
         Send all requests asynchroniusly and when they are done, create new elements in the html.
        */
-      return requestSender.sendRequestsAsync(requests, function() {
-        return microblogLib.ElementGenerator.generateEntryElements($xmlInner, loadComments, $("#content"));
+      requestSender.sendRequestsAsync(requests, function() {
+        microblogLib.ElementGenerator.generateEntryElements($xmlInner, loadComments, $("#content"));
       });
     });
   };
@@ -132,7 +127,7 @@
 
   loadComments = function(id) {
     if (typeof gadgets !== "undefined" && gadgets !== null) {
-      return iwcManager.sendIntent("MICROBLOG_ENTRY_SELECTED", id);
+      iwcManager.sendIntent("MICROBLOG_ENTRY_SELECTED", id);
     }
   };
 

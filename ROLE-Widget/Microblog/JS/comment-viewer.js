@@ -16,8 +16,8 @@
       if (intent.action === "MICROBLOG_ENTRY_SELECTED") {
         fetchEntries(intent.data);
       }
-      if (intent.action === "MICROBLOG_SELECTED") {
-        return $("#content").html("");
+      else if (intent.action === "MICROBLOG_SELECTED") {
+        $("#content").html("");
       }
     };
     iwcManager = new api.IWCManager(iwcCallback);
@@ -34,16 +34,16 @@
   currentEntry = "";
 
   $(document).ready(function() {
-    return initMicroblogCommentViewer();
+    initMicroblogCommentViewer();
   });
 
   initMicroblogCommentViewer = function() {
-    return initEvents();
+    initEvents();
   };
 
   initEvents = function() {
     return $("#addEntry").click(function() {
-      return addEntryInput();
+      addEntryInput();
     });
   };
 
@@ -53,10 +53,10 @@
     }
     microblogLib.ElementGenerator.generateMultilineTextfield($("#content"));
     $("#sendEntryButton").click(function(e) {
-      return addEntry();
+      addEntry();
     });
     isEnteringInput = true;
-    return $("#enterBlogEntry").focus();
+    $("#enterBlogEntry").focus();
   };
 
   addEntry = function() {
@@ -65,8 +65,8 @@
     isEnteringInput = false;
     $("#textfieldBox").remove();
     if (entry.length > 0) {
-      return requestSender.sendRequest("post", "comments/" + currentEntry, entry, function(data) {
-        return fetchEntries(currentEntry);
+      requestSender.sendRequest("post", "comments/" + currentEntry, entry, function(data) {
+        fetchEntries(currentEntry);
       });
     }
   };
@@ -74,7 +74,7 @@
   fetchEntries = function(entry) {
     currentEntry = entry;
     $("#content").html("");
-    return requestSender.sendRequest("get", "entries/" + entry, "", function(data) {
+    requestSender.sendRequest("get", "entries/" + entry, "", function(data) {
       var $xml, $xmlInner, requests, xml, xmlCallback;
       xml = $.parseXML(data);
       $xml = $(xml);
@@ -84,17 +84,17 @@
       xmlCallback = function(childData) {
         var xmlInner;
         xmlInner = $.parseXML(childData);
-        return $xmlInner[0] = $(xmlInner).find("resource");
+        $xmlInner[0] = $(xmlInner).find("resource");
       };
       $xml.find("child").each(function(index) {
-        return requests[index] = new api.Request("get", "comments/" + $(this).attr("id"), "", function(childData) {
+        requests[index] = new api.Request("get", "comments/" + $(this).attr("id"), "", function(childData) {
           var xmlInner;
           xmlInner = $.parseXML(childData);
-          return $xmlInner[index] = $(xmlInner).find("resource");
+          $xmlInner[index] = $(xmlInner).find("resource");
         });
       });
-      return requestSender.sendRequestsAsync(requests, function() {
-        return microblogLib.ElementGenerator.generateEntryElements($xmlInner, null, $("#content"));
+      requestSender.sendRequestsAsync(requests, function() {
+        microblogLib.ElementGenerator.generateEntryElements($xmlInner, null, $("#content"));
       });
     });
   };
