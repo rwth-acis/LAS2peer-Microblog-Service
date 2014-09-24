@@ -2,6 +2,7 @@
 /tmp
 /.idea
 /.las2peer
+/node-storage
 
 /log
 /lib
