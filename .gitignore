@@ -3,11 +3,10 @@
 /.idea
 /.las2peer
 /node-storage
-
 /log
 /lib
 etc/ivy/ivy.jar
 /service
-
 /out
 *.iml
+/output/
