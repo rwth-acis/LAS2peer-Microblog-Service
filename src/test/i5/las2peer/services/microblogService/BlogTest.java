@@ -1,30 +1,29 @@
 package i5.las2peer.services.microblogService;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import i5.las2peer.p2p.LocalNode;
 import i5.las2peer.security.ServiceAgent;
 import i5.las2peer.security.UserAgent;
-
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.WebConnector;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.xml.sax.InputSource;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.xml.sax.InputSource;
 
 
 public class BlogTest
@@ -68,7 +67,6 @@ public class BlogTest
 
 
         connector = new WebConnector(true,HTTP_PORT,false,1000);
-        connector.setSocketTimeout(10000);
         connector.setLogStream(new PrintStream( logStream));
         connector.start ( node );
         Thread.sleep(5000);
@@ -103,7 +101,6 @@ public class BlogTest
     public void testGenerateBlogs()
     {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource;
         connector.updateServiceList();
         MiniClient c = new MiniClient();
         c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
