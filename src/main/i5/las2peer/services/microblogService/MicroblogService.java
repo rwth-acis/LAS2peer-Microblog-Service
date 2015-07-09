@@ -1,5 +1,7 @@
 package i5.las2peer.services.microblogService;
 
+import java.net.HttpURLConnection;
+
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
@@ -32,11 +34,6 @@ public class MicroblogService extends Service {
 
 	public static final String TRUE = String.valueOf(true);
 	public static final String FALSE = String.valueOf(false);
-	public static final int HTTP_OK = 200;
-	public static final int HTTP_CREATED = 201;
-	public static final int HTTP_NOT_FOUND = 404;
-	public static final int HTTP_ERROR = 500;
-	public static final int HTTP_BAD_REQUEST = 400;
 
 	/**
 	 * Standard mapping retrieval for the WebCoonnector
@@ -81,7 +78,7 @@ public class MicroblogService extends Service {
 	 * @param blogName    blogid (only id that the user can choose)
 	 * @param name        name of the blog for public display
 	 * @param description description of the blog
-	 * @return 200, if blog already exists, 201, if a new one was created
+	 * @return {@value java.net.HttpURLConnection#HTTP_OK}, if blog already exists, {@value HttpURLConnection#HTTP_CREATED}, if a new one was created
 	 */
 	@Path("blogs/{blog}")
 	@PUT
@@ -93,7 +90,7 @@ public class MicroblogService extends Service {
 		HttpResponse result;
 		try { // first try to load blog
 			Microblog blog = (Microblog) storage.load(Microblog.class, blogName);
-			result = new HttpResponse(getIdXML(blog), HTTP_OK); // already existing, so do nothing
+			result = new HttpResponse(getIdXML(blog), HttpURLConnection.HTTP_OK); // already existing, so do nothing
 		} catch (StorageException e) {
 			try {
 				if (name.trim().length() == 0) {
@@ -110,9 +107,9 @@ public class MicroblogService extends Service {
 				}
 				manager.addChild(blog);
 
-				result = new HttpResponse(getIdXML(blog), HTTP_CREATED);
+				result = new HttpResponse(getIdXML(blog), HttpURLConnection.HTTP_CREATED);
 			} catch (StorageException e1) {
-				result = getErrorResponse("Storage error: ", e1, HTTP_ERROR);
+				result = getErrorResponse("Storage error: ", e1, HttpURLConnection.HTTP_INTERNAL_ERROR);
 			}
 		}
 		return result;
@@ -123,7 +120,7 @@ public class MicroblogService extends Service {
 	 *
 	 * @param entryId          id of the entry to edit
 	 * @param blogEntryContent new content
-	 * @return 200 if it worked or else 404
+	 * @return {@value java.net.HttpURLConnection#HTTP_OK} if it worked or else {@value HttpURLConnection#HTTP_NOT_FOUND}
 	 */
 	@Path("edit/entries/{entryId}")
 	@POST
@@ -136,7 +133,7 @@ public class MicroblogService extends Service {
 	 *
 	 * @param entryId            id of the comment to edit
 	 * @param blogCommentContent new content
-	 * @return 200 if it worked or else 404
+	 * @return {@value java.net.HttpURLConnection#HTTP_OK} if it worked or else {@value HttpURLConnection#HTTP_NOT_FOUND}
 	 */
 	@Path("edit/comments/{commentId}")
 	@POST
@@ -150,7 +147,7 @@ public class MicroblogService extends Service {
 	 * @param clsResource class of the resource to edit
 	 * @param resourceId  the id of the resource to edit
 	 * @param newContent  the new content to apply
-	 * @return 200 if it worked or else 404
+	 * @return {@value java.net.HttpURLConnection#HTTP_OK} if it worked or else {@value HttpURLConnection#HTTP_NOT_FOUND}
 	 */
 	private HttpResponse editResource(Class<? extends IStorable> clsResource, String resourceId, String newContent) {
 		ArtifactStorage storage = getStorage();
@@ -159,10 +156,10 @@ public class MicroblogService extends Service {
 		try {
 			resource = (StaticArtifact<?, ?, ?>) storage.load(clsResource, resourceId);
 		} catch (StorageException e) {
-			result = getErrorResponse("Resource \"" + resourceId + "\" not found! ", e, HTTP_NOT_FOUND);
+			result = getErrorResponse("Resource \"" + resourceId + "\" not found! ", e, HttpURLConnection.HTTP_NOT_FOUND);
 		}
 
-		result = new HttpResponse("", HTTP_NOT_FOUND);
+		result = new HttpResponse("", HttpURLConnection.HTTP_NOT_FOUND);
 		TextData content;
 		if (resource != null) {
 
@@ -171,10 +168,10 @@ public class MicroblogService extends Service {
 				try {
 					content = (TextData) resource.getContent();
 					content.setContent(newContent);
-					result = new HttpResponse("", HTTP_OK);
+					result = new HttpResponse("", HttpURLConnection.HTTP_OK);
 				} catch (StorageException e) {
 					result = getErrorResponse("Content with id \"" + resource.getContentId() + "\" of resource \""
-							+ resourceId + "\" not found! ", e, HTTP_NOT_FOUND);
+							+ resourceId + "\" not found! ", e, HttpURLConnection.HTTP_NOT_FOUND);
 				}
 			}
 		}
@@ -230,7 +227,7 @@ public class MicroblogService extends Service {
 			try {
 				parent = (StaticArtifact<?, ?, StaticArtifact<?, TextData, ?>>) storage.load(clsParent, parentId);
 			} catch (StorageException e) {
-				result = getErrorResponse("Parent \"" + parentId + "\" not found!", e, HTTP_NOT_FOUND);
+				result = getErrorResponse("Parent \"" + parentId + "\" not found!", e, HttpURLConnection.HTTP_NOT_FOUND);
 			}
 
 			if (parent != null) {
@@ -240,10 +237,10 @@ public class MicroblogService extends Service {
 
 				parent.addChild(resource);
 
-				result = new HttpResponse(getIdXML(resource), HTTP_CREATED);
+				result = new HttpResponse(getIdXML(resource), HttpURLConnection.HTTP_CREATED);
 			}
 		} catch (StorageException e1) {
-			result = getErrorResponse("Resource could not be created!", e1, HTTP_ERROR);
+			result = getErrorResponse("Resource could not be created!", e1, HttpURLConnection.HTTP_INTERNAL_ERROR);
 		}
 		return result;
 	}
@@ -265,14 +262,14 @@ public class MicroblogService extends Service {
 		try {
 			resource = (StaticArtifact<?, ?, ?>) storage.load(clsResource, resourceId);
 		} catch (StorageException e) {
-			result = getErrorResponse("Resource \"" + resourceId + "\" not found! ", e, HTTP_NOT_FOUND);
+			result = getErrorResponse("Resource \"" + resourceId + "\" not found! ", e, HttpURLConnection.HTTP_NOT_FOUND);
 		}
 
 		if (resource != null) {
 			try {
 				xmlResult.appendElement("resource", resource.getProperties(), resource.readContent().toString());
 			} catch (StorageException e) {
-				result = getErrorResponse("Resource \"" + resourceId + "\" content not found! ", e, HTTP_NOT_FOUND);
+				result = getErrorResponse("Resource \"" + resourceId + "\" content not found! ", e, HttpURLConnection.HTTP_NOT_FOUND);
 				return result;
 			}
 
@@ -284,7 +281,7 @@ public class MicroblogService extends Service {
 					// ignore unreadable entries
 				}
 			}
-			result = new HttpResponse(xmlResult.toString(), HTTP_OK);
+			result = new HttpResponse(xmlResult.toString(), HttpURLConnection.HTTP_OK);
 		}
 		return result;
 	}
@@ -344,7 +341,7 @@ public class MicroblogService extends Service {
 			clsResource = (Class<? extends IStorable>) Class.forName(rClass);
 			clsChildren = (Class<? extends IStorable>) Class.forName(cClass);
 		} catch (ClassNotFoundException e) {
-			return getErrorResponse("Invalid class name!", e, HTTP_BAD_REQUEST);
+			return getErrorResponse("Invalid class name!", e, HttpURLConnection.HTTP_BAD_REQUEST);
 		}
 
 		return getResource(clsResource, clsChildren, id);

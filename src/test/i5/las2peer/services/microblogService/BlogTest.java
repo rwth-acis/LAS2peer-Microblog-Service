@@ -3,18 +3,12 @@ package i5.las2peer.services.microblogService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import i5.las2peer.p2p.LocalNode;
-import i5.las2peer.security.ServiceAgent;
-import i5.las2peer.security.UserAgent;
-import i5.las2peer.testing.MockAgentFactory;
-import i5.las2peer.webConnector.WebConnector;
-import i5.las2peer.webConnector.client.ClientResponse;
-import i5.las2peer.webConnector.client.MiniClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -24,6 +18,14 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.InputSource;
+
+import i5.las2peer.p2p.LocalNode;
+import i5.las2peer.security.ServiceAgent;
+import i5.las2peer.security.UserAgent;
+import i5.las2peer.testing.MockAgentFactory;
+import i5.las2peer.webConnector.WebConnector;
+import i5.las2peer.webConnector.client.ClientResponse;
+import i5.las2peer.webConnector.client.MiniClient;
 
 
 public class BlogTest
@@ -122,32 +124,32 @@ public class BlogTest
 
             //first create some entries
             ClientResponse result=c.sendRequest("put", "microblog/blogs/myBlog", "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
 
 
             result=c.sendRequest("put", "microblog/blogs/yourBlog", "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
 
             result=c.sendRequest("post", "microblog/blogs/myBlog", TESTCONTENT1);
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             id1= getXPathEvaluate(xpath, result, "//id/text()");
 
 
             result=c.sendRequest("post", "microblog/blogs/myBlog", TESTCONTENT2);
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             id2= getXPathEvaluate(xpath, result, "//id/text()");
 
             result=c.sendRequest("post", "microblog/comments/"+id1, TESTCONTENT3);
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
 
             id3= getXPathEvaluate(xpath, result, "//id/text()");
 
             result=c.sendRequest("post", "microblog/comments/"+id1, TESTCONTENT4);
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             id4= getXPathEvaluate(xpath, result, "//id/text()");
 
             result=c.sendRequest("post", "microblog/comments/"+id2, TESTCONTENT5);
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             id5= getXPathEvaluate(xpath, result, "//id/text()");
 
 
@@ -156,7 +158,7 @@ public class BlogTest
 
             result=c.sendRequest("get", "microblog/blogs", "");
 
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
 
             blog1=getXPathEvaluate(xpath, result, "/root/child[1]/@id");
             blog2=getXPathEvaluate(xpath, result, "/root/child[2]/@id");
@@ -164,20 +166,20 @@ public class BlogTest
             assertEquals("yourBlog",blog2);
 
             result=c.sendRequest("get", "microblog/blogs/myBlog", "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             entry1= getXPathEvaluate(xpath, result, "/root/child[1]/@id");
             assertEquals(id1,entry1);
             result=c.sendRequest("get", "microblog/entries/"+entry1, "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             entry1= getXPathEvaluate(xpath, result, "/root/resource/text()");
 
 
             result=c.sendRequest("get", "microblog/blogs/myBlog", "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             entry2= getXPathEvaluate(xpath, result, "/root/child[2]/@id");
             assertEquals(id2,entry2);
             result=c.sendRequest("get", "microblog/entries/"+entry2, "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             entry2= getXPathEvaluate(xpath, result, "/root/resource/text()");
 
 
@@ -186,17 +188,17 @@ public class BlogTest
 
 
             result=c.sendRequest("get", "microblog/comments/"+id3, "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             comment1= getXPathEvaluate(xpath, result, "/root/resource/text()");
             assertEquals(TESTCONTENT3,comment1);
 
             result=c.sendRequest("get", "microblog/comments/"+id4, "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             comment2= getXPathEvaluate(xpath, result, "/root/resource/text()");
             assertEquals(TESTCONTENT4,comment2);
 
             result=c.sendRequest("get", "microblog/comments/"+id5, "");
-            assertTrue(result.getHttpCode() < 400);
+            assertTrue(result.getHttpCode() < HttpURLConnection.HTTP_BAD_REQUEST);
             comment3= getXPathEvaluate(xpath, result, "/root/resource/text()");
             assertEquals(TESTCONTENT5,comment3);
 
