@@ -29,7 +29,7 @@ public class DHTArtifactStorage extends ArtifactStorage
 
 		IStorable result = getEnvelopeData(cls, id);
 		if (result instanceof StaticArtifact)
-			((StaticArtifact) result).setStorage(this);
+			((StaticArtifact<?, ?, ?>) result).setStorage(this);
 		return result;
 	}
 

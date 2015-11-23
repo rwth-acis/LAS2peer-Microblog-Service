@@ -1,16 +1,16 @@
 package i5.las2peer.services.microblogService.data;
 
-import i5.las2peer.services.microblogService.exceptions.StorageException;
-import i5.las2peer.services.microblogService.interfaces.IArtifact;
-import i5.las2peer.services.microblogService.interfaces.IArtifactData;
-import i5.las2peer.services.microblogService.storage.ArtifactStorage;
-import i5.las2peer.services.microblogService.storage.IdGenerator;
-
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import i5.las2peer.services.microblogService.exceptions.StorageException;
+import i5.las2peer.services.microblogService.interfaces.IArtifact;
+import i5.las2peer.services.microblogService.interfaces.IArtifactData;
+import i5.las2peer.services.microblogService.storage.ArtifactStorage;
+import i5.las2peer.services.microblogService.storage.IdGenerator;
 
 /**
  * Basic class for storing artifacts, can ba also used for mediums
@@ -264,7 +264,6 @@ public abstract class StaticArtifact<CONT extends Serializable, CONTBOX extends 
 	 * @param child child object to add
 	 * @throws StorageException
 	 */
-	@SuppressWarnings("unchecked")
 	public void addChild(CHILD child) throws StorageException
 	{
 		addChildren(child);
@@ -275,12 +274,13 @@ public abstract class StaticArtifact<CONT extends Serializable, CONTBOX extends 
 	 * @param children children to add
 	 * @throws StorageException
 	 */
-	public void addChildren(CHILD... children) throws StorageException
+	@SafeVarargs
+	public final void addChildren(CHILD... children) throws StorageException
 	{
 		for (CHILD child : children)
 		{
 			this.children.add(child.getId());
-			if (!child.wasOnceSaved()) { // only save implicitly, when feshly created
+			if (!child.wasOnceSaved()) { // only save implicitly, when freshly created
 				storage.save(child);
 			}
 		}
