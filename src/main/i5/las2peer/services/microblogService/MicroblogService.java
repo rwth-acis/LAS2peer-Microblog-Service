@@ -2,18 +2,20 @@ package i5.las2peer.services.microblogService;
 
 import java.net.HttpURLConnection;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
-import i5.las2peer.restMapper.annotations.GET;
-import i5.las2peer.restMapper.annotations.POST;
-import i5.las2peer.restMapper.annotations.PUT;
-import i5.las2peer.restMapper.annotations.Path;
-import i5.las2peer.restMapper.annotations.PathParam;
-import i5.las2peer.restMapper.annotations.Produces;
-import i5.las2peer.restMapper.annotations.QueryParam;
 import i5.las2peer.security.Agent;
 import i5.las2peer.security.UserAgent;
 import i5.las2peer.services.microblogService.data.BlogComment;
@@ -83,8 +85,8 @@ public class MicroblogService extends Service {
 	@Path("blogs/{blog}")
 	@PUT
 	public HttpResponse createBlog(@PathParam("blog") String blogName,
-			@QueryParam(name = "name", defaultValue = "") String name,
-			@QueryParam(name = "description", defaultValue = "") String description) {
+			@QueryParam(value = "name") @DefaultValue(value = "") String name,
+			@QueryParam(value = "description") @DefaultValue(value = "") String description) {
 
 		ArtifactStorage storage = getStorage();
 		HttpResponse result;
